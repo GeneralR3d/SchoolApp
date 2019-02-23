@@ -1,0 +1,305 @@
+:root {
+  --main-color: #141638;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+[disabled] {
+  background: #bdbdbd !important;
+  cursor: default;
+}
+
+* {
+  box-sizing: border-box;
+  outline: none;
+  margin: 0;
+  padding: 0;
+  font-family: "Raleway";
+}
+
+html, body {
+  min-width: 100vw;
+  max-width: 100vw;
+  min-height: 100vh;
+  max-height: 100vh;
+}
+
+body {
+  background: var(--main-color);
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+}
+
+button {
+  background: #0277bd;
+  color: white;
+  padding: 10px;
+  border: none;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.grid-container {
+  width: 100vw;
+  height: 100vh;
+  display: grid;
+  grid-template-rows: 10% auto;
+}
+
+#header {
+  background: var(--main-color);
+  color: white;
+  padding: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 3vh;
+  z-index: 2000;
+}
+
+#header #profile-btn {
+  background: url("/images/icons/icon-144.png") center center no-repeat;
+  background-size: cover;
+  width: 7vh;
+  height: 7vh;
+  border-radius: 50%;
+  box-shadow: none;
+  transform: rotate(0deg);
+  animation: spin--right 1s linear infinite;
+  transition: background-image 0.3s ease;
+}
+
+#header #user-button-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  position: absolute;
+  top: 10%;
+  right: 5px;
+}
+
+#header #user-button-container .user-button {
+  background: #0277bd;
+  color: white;
+  margin: 5px;
+  padding: 10px;
+  border-radius: 5px;
+  font-size: 1rem;
+}
+
+#sign-in-page {
+  background: var(--main-color);
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  top: 0;
+  left: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  transition: 0.5s ease;
+}
+
+#sign-in-page #sign-in-btn {
+  background: #0277bd;
+  color: white;
+  padding: 10px;
+  font-size: 150%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 5px #8d8d8d;
+  transform: translateY(0px);
+}
+
+#sign-in-page #sign-in-btn:active {
+  box-shadow: 0 2px #004c8c !important;
+  transform: translateY(3px);
+}
+
+#sign-in-page #sign-in-btn::before {
+  content: "";
+  background: rgba(255, 255, 255, 0.8);
+  width: 60px;
+  height: 1.5em;
+  position: absolute;
+  filter: blur(30px);
+  transform: translateX(-10em) skewX(15deg);
+  transition: 0.5s linear;
+}
+
+#sign-in-page #sign-in-btn:hover::before {
+  transform: translateX(20em) skewX(15deg);
+}
+
+.page {
+  background: url("/images/background.jpg") center center no-repeat;
+  background-size: cover;
+  padding-left: 20px;
+  padding-right: 20px;
+  overflow: scroll;
+}
+
+.card {
+  margin: 10px 0;
+  display: grid;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 10px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
+}
+
+.card .card-header, .card .card-footer {
+  background: #f5f5f5;
+  padding: 10px;
+}
+
+.card .card-header {
+  display: flex;
+  align-items: center;
+  font-size: 150%;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.card .card-content {
+  background: white;
+  min-height: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.card .card-content>* {
+  padding: 10px;
+  border-top: 0.5px solid #e0e0e0;
+  border-bottom: 0.5px solid #e0e0e0;
+
+}
+
+.card .card-content .card-loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card .card-content .card-loader>div {
+  height: 50px;
+  width: 50px;
+  border: 2px solid blue;
+  border-top: none;
+  border-bottom: none;
+  border-radius: 50%;
+  animation: spin--right 0.5s linear infinite;
+}
+
+.card .card-footer {
+  color: #757575;
+  border-top: 1px solid #e0e0e0;
+}
+
+#user-card {
+  background: #f5f5f5;
+  padding: 10px;
+  grid-template-rows: auto;
+  grid-gap: 5px;
+  text-align: center;
+}
+
+#user-card .user-card-name {
+  font-size: 200%;
+  font-weight: bold;
+}
+
+#teacher-card .teacher-btn {
+  text-align: left;
+}
+
+#teacher-card .teacher-btn .teacher-name {
+  font-size: 150%;
+}
+
+#teacher-card .teacher-btn .teacher-subjects {
+  color: #757575;
+}
+
+#admin-card #admin-data-upload {
+  display: flex;
+  justify-content: space-between;
+}
+
+#admin-card #admin-add-admin {
+  display: flex;
+  justify-content: space-between;
+}
+
+@keyframes spin--right {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes spin--left {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes fade-in--right {
+  0% {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-out--right {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+}
+
+@font-face {
+  font-family: "Raleway";
+  src: url("fonts/Raleway.ttf");
+}
+
+@media (max-width: 500px) {
+  .page {
+    background-image: url("/images/background-phone.jpg");
+  }
+
+  #admin-card #admin-data-upload, #admin-card #admin-add-admin {
+    flex-direction: column;
+  }
+
+  #admin-card #admin-data-upload #user-data-upload-btn, #admin-card #admin-add-admin #add-admin-btn {
+    margin-top: 10px;
+  }
+}
+
+::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  background: transparent;
+}
