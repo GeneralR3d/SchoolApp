@@ -39,6 +39,7 @@ button {
   padding: 10px;
   border: none;
   border-radius: 5px;
+  font-size: 1rem;
   font-weight: bold;
   cursor: pointer;
 }
@@ -89,7 +90,6 @@ button {
   margin: 5px;
   padding: 10px;
   border-radius: 5px;
-  font-size: 1rem;
 }
 
 #sign-in-page {
@@ -143,6 +143,11 @@ button {
   padding-left: 20px;
   padding-right: 20px;
   overflow: scroll;
+  -webkit-overflow-scrolling: touch;
+}
+
+.page #page-bottom {
+  height: 20px;
 }
 
 .card {
@@ -176,7 +181,6 @@ button {
   padding: 10px;
   border-top: 0.5px solid #e0e0e0;
   border-bottom: 0.5px solid #e0e0e0;
-
 }
 
 .card .card-content .card-loader {
@@ -225,14 +229,23 @@ button {
   color: #757575;
 }
 
-#admin-card #admin-data-upload {
+#admin-card #admin-data-upload, #admin-card #admin-add-admin, #admin-card #admin-delete-admin {
   display: flex;
   justify-content: space-between;
 }
 
-#admin-card #admin-add-admin {
-  display: flex;
-  justify-content: space-between;
+.snackbar {
+  background-color: #333;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  position: fixed;
+  left: 30px;
+  right: 30px;
+  bottom: 10px;
+  border-radius: 5px;
+  z-index: 3000;
+  animation: fade-in--bottom 0.5s ease;
 }
 
 @keyframes spin--right {
@@ -252,6 +265,30 @@ button {
 
   100% {
     transform: rotate(-360deg);
+  }
+}
+
+@keyframes fade-in--bottom {
+  0% {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-out--bottom {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(10px);
   }
 }
 
@@ -289,11 +326,11 @@ button {
     background-image: url("/images/background-phone.jpg");
   }
 
-  #admin-card #admin-data-upload, #admin-card #admin-add-admin {
+  #admin-card #admin-data-upload, #admin-card #admin-add-admin, #admin-card #admin-delete-admin {
     flex-direction: column;
   }
 
-  #admin-card #admin-data-upload #user-data-upload-btn, #admin-card #admin-add-admin #add-admin-btn {
+  #admin-card #admin-data-upload #user-data-upload-btn, #admin-card #admin-add-admin #add-admin-btn, #admin-card #admin-delete-admin #delete-admin-btn {
     margin-top: 10px;
   }
 }

@@ -27,84 +27,37 @@
   <script defer src="/__/firebase/5.7.3/firebase-functions.js"></script>
   <script defer src="/__/firebase/init.js"></script>
 
+  <script defer src="scripts/templates.js"></script>
   <script defer src="scripts/app.js"></script>
+  <script class="script"></script>
 
   <title>SchoolApp</title>
 </head>
 
 <body ontouchstart="">
   <div class="grid-container">
-    <div id="header">
+    <section id="header">
       <h1 id="page-title">SchoolApp</h1>
       <button id="profile-btn"></button>
       <div id="user-button-container">
         <button class="online user-button" id="sign-out-btn" hidden>Sign Out</button>
         <button class="online user-button" id="delete-user-btn" hidden>Delete Account</button>
       </div>
+    </section>
+
+    <section class="page">
+    </section>
+
+    <section id="sign-in-page">
+      <button class="online" id="sign-in-btn" disabled>Sign In With Google</button>
+    </section>
+
+    <div hidden>
+      <button class="card-btn-template">
+        <p class="teacher-name"></p>
+        <p class="teacher-subjects"></p>
+      </button>
     </div>
-
-    <div class="page" id="registration-page">
-      <div class="card" id="user-card">
-        <p class="user-card-name"></p>
-        <p class="user-card-role"></p>
-        <button class="online" id="refresh-btn" hidden>Refresh Role</button>
-      </div>
-      <div class="card" id="subject-card" hidden>
-        <p class="card-header">Subjects</p>
-        <div class="card-content">
-          <div class="card-loader">
-            <div></div>
-          </div>
-        </div>
-        <p class="card-footer"></p>
-      </div>
-      <div class="card" id="teacher-card" hidden>
-        <p class="card-header">Teachers</p>
-        <div class="card-content">
-          <div class="card-loader">
-            <div></div>
-          </div>
-        </div>
-        <p class="card-footer">Click on any of the teachers to see their details</p>
-      </div>
-      <div class="card" id="admin-card" hidden>
-        <p class="card-header">Admin</p>
-        <div class="card-content">
-          <div id="admin-data-upload">
-            <form>
-              <label for="student-data-input">Student Data: </label>
-              <input class="online" id="student-data-input" type="file" accept=".csv">
-              <br><br>
-              <label for="teacher-data-input">Teacher Data: </label>
-              <input class="online" id="teacher-data-input" type="file" accept=".csv">
-            </form>
-            <button class="online" id="user-data-upload-btn">Upload Data</button>
-          </div>
-          <div id="admin-add-admin">
-            <form>
-              <label for="user-select">Select user to add as admin:</label>
-              <select id="user-select">
-                <option value=""></option>
-              </select>
-            </form>
-            <button class="online" id="add-admin-btn">Add Admin</button>
-          </div>
-        </div>
-        <p class="card-footer">Hi there admin</p>
-      </div>
-    </div>
-  </div>
-
-  <div id="sign-in-page">
-    <button class="online" id="sign-in-btn" disabled>Sign In With Google</button>
-  </div>
-
-  <div hidden>
-    <button class="card-btn-template">
-      <p class="teacher-name"></p>
-      <p class="teacher-subjects"></p>
-    </button>
-  </div>
 </body>
 
 </html>
