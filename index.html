@@ -28,36 +28,73 @@
   <script defer src="/__/firebase/init.js"></script>
 
   <script defer src="scripts/templates.js"></script>
+  <script defer src="scripts/roles/student.js"></script>
+  <script defer src="scripts/roles/teacher.js"></script>
+
+  </script>
   <script defer src="scripts/app.js"></script>
+  <script class="role"></script>
   <script class="script"></script>
 
   <title>SchoolApp</title>
 </head>
 
 <body ontouchstart="">
+
+
   <div class="grid-container">
     <section id="header">
-      <h1 id="page-title">SchoolApp</h1>
-      <button id="profile-btn"></button>
-      <div id="user-button-container">
-        <button class="online user-button" id="sign-out-btn" hidden>Sign Out</button>
-        <button class="online user-button" id="delete-user-btn" hidden>Delete Account</button>
+      <div id="header-left">
+        <button id="back-btn" hidden></button>
+        <button id="menu-btn" hidden></button>
+        <h1 id="app-name">DHPTM</h1>
+        <h6 id="page-title"></h6>
       </div>
+      <button id="profile-btn"></button>
     </section>
 
-    <section class="page">
+    <section id="menu">
+      <button class="menu-btn" id="home-btn" onclick="APP.togglePage('/')">HOME</button>
+      <button class="menu-btn" id="ptm-booking-btn" onclick="APP.togglePage('/ptmBooking')">PTM</button>
+      <button class="menu-btn" id="admin-btn" onclick="APP.togglePage('/admin')" hidden>ADMIN</button>
     </section>
 
-    <section id="sign-in-page">
-      <button class="online" id="sign-in-btn" disabled>Sign In With Google</button>
+    <section id="page">
     </section>
 
-    <div hidden>
-      <button class="card-btn-template">
-        <p class="teacher-name"></p>
-        <p class="teacher-subjects"></p>
-      </button>
+    <section id="user-menu">
+      <button class="online user-button" id="sign-out-btn" hidden>Sign Out</button>
+      <button class="online user-button" id="delete-user-btn" hidden>Delete Account</button>
+    </section>
+  </div>
+
+  <section id="sign-in-page">
+    <button class="online" id="sign-in-btn" disabled>Sign In With Google</button>
+  </section>
+
+  <div hidden>
+    <button class="teacher-btn-template">
+      <p class="teacher-name"></p>
+      <p class="teacher-subjects"></p>
+    </button>
+    <div class="ptm-book-template">
+      <form>
+        <p class="ptm-teacher-name"></p>
+        <p class="ptm-teacher-email"></p>
+        <p class="ptm-teacher-subjects"></p>
+        <label for="ptm-timeslot-select" class="ptm-timeslot-select-label">Select Timeslot:</label>
+        <select class="ptm-timeslot-select">
+          <option value=""></option>
+        </select>
+      </form>
+      <button class="online ptm-confirm-btn">Confirm</button>
     </div>
+    <div class="ptm-view-template">
+      <p class="ptm-name"></p>
+      <p class="ptm-time"></p>
+    </div>
+  </div>
+
 </body>
 
 </html>

@@ -13,18 +13,21 @@ var ADMIN = {
   addAdminSelect: document.querySelector('#add-admin-select'),
   deleteAdminSelect: document.querySelector('#delete-admin-select'),
 
-  students: {},
-  teachers: {},
+  userList: [],
+  adminList: [],
+
+  studentData: {},
+  teacherData: {},
 };
 
 //----------------------------------------------------------------------------------------------------\\
 
 ADMIN.studentDataInput.addEventListener('change', () => {
-  ADMIN.updateStudents();
+  ADMIN.updateStudentData();
 });
 
 ADMIN.teacherDataInput.addEventListener('change', () => {
-  ADMIN.updateTeachers();
+  ADMIN.updateTeacherData();
 });
 
 ADMIN.userDataUploadButton.addEventListener('click', () => {
@@ -41,19 +44,25 @@ ADMIN.deleteAdminButton.addEventListener('click', () => {
 
 //----------------------------------------------------------------------------------------------------\\
 
-ADMIN.toggleUI = async () => {
-  var idTokenResult = await USER.getIdTokenResult(true);
-  var role = idTokenResult.claims.role;
-  var admin = idTokenResult.claims.admin;
+ADMIN.updateUserList = async () => {
+  var userCollection = await FIRESTORE.collection('users').get();
+  ADMIN.userList = userCollection.docs;
+};
 
-  if (!role && !admin) {
+ADMIN.updateAdminList = async () => {
+  var adminCollection = await FIRESTORE.collection('admins').get();
+  ADMIN.adminList = adminCollection.docs;
+};
+
+ADMIN.updateUI = () => {
+  APP.pageTitle.innerHTML = 'Admin';
+
+  if (!USER.admin) {
+    APP.toggleSnackbar('You need to be an admin to access the page. :P');
     APP.togglePage('/');
-  } else if (!admin) {
-    APP.toggleSnackbar('You need to be an admin to access the page. :P')
-    togglePage('/')
   } else {
-    var userCollection = await FIRESTORE.collection('users').get();
-    userCollection.docs.forEach((user) => {
+    ADMIN.addAdminSelect.innerHTML = '<option value=""></option>';
+    ADMIN.userList.forEach((user) => {
       var option = document.createElement('option');
       var textNode = document.createTextNode(user.id);
 
@@ -63,8 +72,7 @@ ADMIN.toggleUI = async () => {
     });
 
     ADMIN.deleteAdminSelect.innerHTML = '<option value=""></option>';
-    var adminCollection = await FIRESTORE.collection('admins').get();
-    adminCollection.docs.forEach((admin) => {
+    ADMIN.adminList.forEach((admin) => {
       var option = document.createElement('option');
       var textNode = document.createTextNode(admin.id);
 
@@ -77,7 +85,7 @@ ADMIN.toggleUI = async () => {
   }
 }; // DONE
 
-ADMIN.updateStudents = () => {
+ADMIN.updateStudentData = () => {
   if (ADMIN.studentDataInput.files.length !== 0) {
     if (window.FileReader) {
       var file = ADMIN.studentDataInput.files[0];
@@ -109,8 +117,8 @@ ADMIN.updateStudents = () => {
             studentSubject = lineArray[i + 2];
           }
 
-          if (!ADMIN.students[studentEmail]) {
-            ADMIN.students[studentEmail] = {
+          if (!ADMIN.studentData[studentEmail]) {
+            ADMIN.studentData[studentEmail] = {
               name: studentName,
               class: studentClass,
               role: 'student',
@@ -118,12 +126,12 @@ ADMIN.updateStudents = () => {
             };
           }
 
-          ADMIN.students[studentEmail].subjects.push(studentSubject);
+          ADMIN.studentData[studentEmail].subjects.push(studentSubject);
         });
 
-        delete ADMIN.students[''];
+        delete ADMIN.studentData[''];
 
-        console.log(ADMIN.students);
+        console.log(ADMIN.studentData);
       };
 
       reader.onerror = (error) => {
@@ -134,32 +142,33 @@ ADMIN.updateStudents = () => {
       APP.toggleSnackbar('FileReader is not supported in this browser');
     }
   } else {
-    ADMIN.students = {};
+    ADMIN.studentData = {};
   }
 }; // DONE
 
-ADMIN.updateTeachers = () => {
+ADMIN.updateTeacherData = () => {
   return;
 }; // TODO
 
 ADMIN.uploadUsers = () => {
-  if (ADMIN.students === {} && ADMIN.teachers === {}) {
-    console.error('[Admin] No data selected');
+  if (ADMIN.studentData === {} && ADMIN.teacherData === {}) {
+    console.log('[Admin] No data selected');
+    APP.toggleSnackbar('No data selected');
   } else {
     var batch = FIRESTORE.batch();
 
-    if (ADMIN.students !== {}) {
-      for (var key in ADMIN.students) {
+    if (ADMIN.studentData !== {}) {
+      for (var key in ADMIN.studentData) {
         var ref = FIRESTORE.doc(`users/${key}`);
-        batch.set(ref, ADMIN.students[key]);
+        batch.set(ref, ADMIN.studentData[key]);
       }
     } else {
       console.log('[Admin] No student data detected');
     }
-    if (ADMIN.teachers !== {}) {
-      for (var key in ADMIN.teachers) {
+    if (ADMIN.teacherData !== {}) {
+      for (var key in ADMIN.teacherData) {
         var ref = FIRESTORE.doc(`users/${key}`);
-        batch.set(ref, ADMIN.teachers[key]);
+        batch.set(ref, ADMIN.teacherData[key]);
       }
     } else {
       console.log('[Admin] No teacher data detected');
@@ -169,8 +178,13 @@ ADMIN.uploadUsers = () => {
       .then(() => {
         console.log('[Admin] Users Update Successful');
 
-        ADMIN.students = {};
-        ADMIN.teachers = {};
+        ADMIN.studentData = {};
+        ADMIN.teacherData = {};
+
+        ADMIN.updateUserList()
+          .then(() => {
+            ADMIN.updateUI();
+          });
       })
       .catch((error) => {
         console.error('[Admin, Firebase]', error);
@@ -190,8 +204,11 @@ ADMIN.addAdmin = () => {
         console.log(result.data);
         APP.toggleSnackbar(result.data.result || result.data.error);
 
-        ADMIN.toggleUI();
-        ADMIN.addAdminSelect.value = '';
+        ADMIN.updateAdminList()
+          .then(() => {
+            ADMIN.updateUI();
+            ADMIN.addAdminSelect.value = '';
+          });
       });
   } else {
     console.log('[Admin] No user selected');
@@ -211,8 +228,11 @@ ADMIN.deleteAdmin = () => {
         console.log(result.data);
         APP.toggleSnackbar(result.data.result || result.data.error);
 
-        ADMIN.toggleUI();
-        ADMIN.deleteAdminSelect.value = '';
+        ADMIN.updateAdminList()
+          .then(() => {
+            ADMIN.updateUI();
+            ADMIN.deleteAdminSelect.value = '';
+          });
       });
   } else {
     console.log('[Admin] No user selected');
@@ -222,4 +242,10 @@ ADMIN.deleteAdmin = () => {
 
 //----------------------------------------------------------------------------------------------------\\
 
-ADMIN.toggleUI();
+ADMIN.updateUserList()
+  .then(() => {
+    ADMIN.updateAdminList()
+      .then(() => {
+        ADMIN.updateUI();
+      });
+  });

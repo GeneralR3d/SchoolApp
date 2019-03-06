@@ -5,83 +5,74 @@
 var HOME = {
   userCard: document.querySelector('#user-card'),
   subjectCard: document.querySelector('#subject-card'),
-  teacherCard: document.querySelector('#teacher-card'),
-  adminCard: document.querySelector('#admin-card'),
+  teachersCard: document.querySelector('#teachers-card'),
+  ptmCard: document.querySelector('#ptm-card'),
 
-  refreshButton: document.querySelector('#refresh-btn'),
-  userDataUploadButton: document.querySelector('#user-data-upload-btn'),
-  addAdminButton: document.querySelector('#add-admin-btn'),
-  deleteAdminButton: document.querySelector('#delete-admin-btn'),
-
-  studentDataInput: document.querySelector('#student-data-input'),
-  teacherDataInput: document.querySelector('#teacher-data-input'),
-
-  addAdminSelect: document.querySelector('#add-admin-select'),
-  deleteAdminSelect: document.querySelector('#delete-admin-select'),
-
-  students: {},
-  teachers: {},
+  teacherButtonTemplate: document.querySelector('.teacher-btn-template'),
 };
 
 //----------------------------------------------------------------------------------------------------\\
 
-HOME.refreshButton.addEventListener('click', async () => {
-  HOME.toggleUI();
-});
+
 
 //----------------------------------------------------------------------------------------------------\\
 
-HOME.toggleUI = async () => {
+HOME.updateUI = () => {
+  APP.pageTitle.innerHTML = 'Home';
+
   HOME.userCard.querySelector('.user-card-name').innerHTML = `Welcome ${USER.displayName}`;
+  HOME.userCard.querySelector('.user-card-role').innerHTML = `You are signed in as a ${USER.role}.`;
+  HOME.userCard.hidden = false;
 
-  var idTokenResult = await USER.getIdTokenResult(true);
-  var role = idTokenResult.claims.role;
-  var admin = idTokenResult.claims.admin;
+  switch (USER.role) {
+    case 'student':
+      HOME.subjectCard.hidden = false;
+      HOME.teachersCard.hidden = false;
+      HOME.ptmCard.hidden = false;
 
-  if (!role && !admin) {
-    HOME.refreshButton.hidden = false;
-    HOME.userCard.querySelector('.user-card-role').innerHTML = 'Your role has not updated, please click the button below to attempt refresh.';
-    APP.toggleSnackbar('Please try again');
-  } else {
-    if (role) {
-      HOME.refreshButton.hidden = true;
-      HOME.userCard.querySelector('.user-card-role').innerHTML = `You are signed in as a ${role}.`;
+      HOME.subjectCard.querySelector('.card-content').innerHTML = '';
+      USER.subjects.forEach((subject) => {
+        var element = document.createElement('p');
+        element.appendChild(document.createTextNode(subject));
+        HOME.subjectCard.querySelector('.card-content').appendChild(element);
+      });
 
-      switch (role) {
-        case 'student':
-          HOME.subjectCard.hidden = false;
-          HOME.teacherCard.hidden = false;
-
-          FIRESTORE.doc(`users/${USER.email}`).get()
-            .then((doc) => {
-              var subjects = doc.data().subjects;
-
-              subjects.forEach((subject) => {
-                var element = document.createElement('p');
-                element.appendChild(document.createTextNode(subject));
-                HOME.subjectCard.querySelector('.card-content').appendChild(element);
-              });
-
-              HOME.subjectCard.querySelector('.card-loader').hidden = true;
-            })
-            .catch((error) => {
-              console.error('[Home, Firebase]', error);
-            });
-
-          HOME.teacherCard.querySelector('.card-loader').hidden = true;
-
-          break;
-        case 'parent':
-          break;
-        case 'teacher':
-          break;
-        default:
-          break;
+      HOME.teachersCard.querySelector('.card-content').innerHTML = '';
+      for (var teacherEmail in USER.teachers) {
+        var teacher = USER.teachers[teacherEmail];
+        var teacherButton = HOME.teacherButtonTemplate.cloneNode(true);
+        teacherButton.className = 'teacher-btn';
+        teacherButton.id = teacherEmail.split('@')[0].split('.').join('_');
+        teacherButton.querySelector('.teacher-name').innerHTML = teacher.name;
+        teacherButton.querySelector('.teacher-subjects').innerHTML = teacher.subjects.join(', ');
+        HOME.teachersCard.querySelector('.card-content').appendChild(teacherButton);
       }
-    }
+      document.querySelectorAll('.teacher-btn').forEach((element) => {
+        element.addEventListener('click', () => {
+          APP.togglePage(`/${element.id}`);
+        });
+      });
+
+      HOME.ptmCard.querySelector('.card-content').innerHTML = '<button class="menu-btn" onclick="APP.togglePage(\'/ptmBooking\')">Register Here</button>';
+      USER.bookedTimeslots.forEach((bookedTimeslot) => {
+        var element = document.createElement('p');
+        element.appendChild(document.createTextNode(`${new Date(bookedTimeslot.time.seconds * 1000)}: ${USER.teachers[bookedTimeslot.teacherEmail].name}`));
+        HOME.ptmCard.querySelector('.card-content').appendChild(element);
+      });
+      break;
+    case 'teacher':
+      HOME.ptmCard.hidden = false;
+
+      HOME.ptmCard.querySelector('.card-content').innerHTML = '';
+      USER.timeslots.forEach((timeslot) => {
+        var element = document.createElement('p');
+        element.appendChild(document.createTextNode(`${new Date(timeslot.data().time.seconds * 1000)}: ${timeslot.data().available}: ${timeslot.data().user}`));
+        HOME.ptmCard.querySelector('.card-content').appendChild(element);
+      });
+      break;
   }
-}; // TODO
+};
 
 //----------------------------------------------------------------------------------------------------\\
 
-HOME.toggleUI();
+HOME.updateUI();

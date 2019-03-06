@@ -14,6 +14,7 @@
 * {
   box-sizing: border-box;
   outline: none;
+  max-width: 100%;
   margin: 0;
   padding: 0;
   font-family: "Raleway";
@@ -48,25 +49,60 @@ button {
   width: 100vw;
   height: 100vh;
   display: grid;
-  grid-template-rows: 10% auto;
+  grid-template-rows: 10vh auto;
+  grid-template-columns: 2fr 5fr 3fr;
 }
 
 #header {
   background: var(--main-color);
   color: white;
-  padding: 10px;
+  padding-left: 10px;
+  padding-right: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  font-size: 3vh;
+  grid-column-start: 1;
+  grid-column-end: -1;
+  position: relative;
   z-index: 2000;
+  font-size: 3vh;
+  overflow-x: scroll;
+}
+
+#header #header-left {
+  display: flex;
+  align-items: center;
+}
+
+#header #back-btn {
+  background: url("/images/round_arrow_back_ios_white_48dp.png") center center no-repeat;
+  background-size: cover;
+  width: 5vh;
+  height: 5vh;
+}
+
+#header #menu-btn {
+  background: url("/images/round_menu_white_48dp.png") center center no-repeat;
+  background-size: cover;
+  width: 5vh;
+  height: 5vh;
+}
+
+#header #app-name {
+  margin-left: 5px;
+}
+
+#header #page-title {
+  align-self: flex-end;
 }
 
 #header #profile-btn {
   background: url("/images/icons/icon-144.png") center center no-repeat;
   background-size: cover;
   width: 7vh;
+  min-width: 7vh;
   height: 7vh;
+  border: 2px solid #0277bd;
   border-radius: 50%;
   box-shadow: none;
   transform: rotate(0deg);
@@ -74,85 +110,59 @@ button {
   transition: background-image 0.3s ease;
 }
 
-#header #user-button-container {
+#menu {
+  background: #01579b;
+  padding-top: 10px;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: flex-end;
-  position: absolute;
-  top: 10%;
-  right: 5px;
+  grid-row: 2 / -1;
+  grid-column: 1 / 2;
+  box-shadow: inset 0px 0px 20px 0px rgba(0, 0, 0, 0.75);
 }
 
-#header #user-button-container .user-button {
+#menu .menu-btn {
+  background: #01579b;
+  width: 100%;
+  margin-top: 5px;
+  margin-bottom: 5px;
+  border-radius: 0;
+  box-shadow: inset 20px 0px 20px -20px rgba(0, 0, 0, 0.75), inset -20px 0px 20px -20px rgba(0, 0, 0, 0.75);
+}
+
+#menu .menu-btn:hover {
   background: #0277bd;
+}
+
+#user-menu {
+  padding: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  grid-row: 2 / -1;
+  grid-column: -2 / -1;
+}
+
+#user-menu .user-button {
+  background: var(--main-color);
   color: white;
   margin: 5px;
-  padding: 10px;
-  border-radius: 5px;
 }
 
-#sign-in-page {
-  background: var(--main-color);
-  width: 100vw;
-  height: 100vh;
-  position: fixed;
-  top: 0;
-  left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-  transition: 0.5s ease;
-}
-
-#sign-in-page #sign-in-btn {
-  background: #0277bd;
-  color: white;
-  padding: 10px;
-  font-size: 150%;
-  border-radius: 5px;
-  overflow: hidden;
-  box-shadow: 0 5px #8d8d8d;
-  transform: translateY(0px);
-}
-
-#sign-in-page #sign-in-btn:active {
-  box-shadow: 0 2px #004c8c !important;
-  transform: translateY(3px);
-}
-
-#sign-in-page #sign-in-btn::before {
-  content: "";
-  background: rgba(255, 255, 255, 0.8);
-  width: 60px;
-  height: 1.5em;
-  position: absolute;
-  filter: blur(30px);
-  transform: translateX(-10em) skewX(15deg);
-  transition: 0.5s linear;
-}
-
-#sign-in-page #sign-in-btn:hover::before {
-  transform: translateX(20em) skewX(15deg);
-}
-
-.page {
+#page {
   background: url("/images/background.jpg") center center no-repeat;
   background-size: cover;
+  width: 100vw;
   padding-left: 20px;
   padding-right: 20px;
+  grid-row: 2 / -1;
+  grid-column: 1 / -1;
+  justify-self: end;
   overflow: scroll;
   -webkit-overflow-scrolling: touch;
 }
 
-.page #page-bottom {
-  height: 20px;
-}
-
 .card {
   margin: 10px 0;
-  display: grid;
   border-radius: 10px;
   overflow: hidden;
   box-shadow: 0 1px 10px 0 rgba(60, 64, 67, .3), 0 1px 3px 1px rgba(60, 64, 67, .15);
@@ -181,6 +191,20 @@ button {
   padding: 10px;
   border-top: 0.5px solid #e0e0e0;
   border-bottom: 0.5px solid #e0e0e0;
+}
+
+.card .card-content .card-form {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.card .card-content .card-form>form {
+  max-width: 75%;
+}
+
+.card .card-content .card-form>button {
+  max-width: 25%;
 }
 
 .card .card-content .card-loader {
@@ -217,21 +241,66 @@ button {
   font-weight: bold;
 }
 
-#teacher-card .teacher-btn {
+#teachers-card .teacher-btn {
   text-align: left;
+  border-radius: 0;
 }
 
-#teacher-card .teacher-btn .teacher-name {
-  font-size: 150%;
+#teachers-card .teacher-btn .teacher-name {
+  font-size: 125%;
 }
 
-#teacher-card .teacher-btn .teacher-subjects {
-  color: #757575;
+#teachers-card .teacher-btn .teacher-subjects {
+  font-size: 75%;
 }
 
-#admin-card #admin-data-upload, #admin-card #admin-add-admin, #admin-card #admin-delete-admin {
+#ptm-card .ptm-teacher-name {
+  font-size: 125%;
+}
+
+#sign-in-page {
+  background: var(--main-color);
+  width: 100vw;
+  height: 100vh;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 1000;
+  transition: 0.5s ease;
+}
+
+#sign-in-page #sign-in-btn {
+  background: #0277bd;
+  color: white;
+  padding: 10px;
+  font-size: 150%;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 5px #8d8d8d;
+  transform: translateY(0px);
+}
+
+#sign-in-page #sign-in-btn:active {
+  box-shadow: 0 2px #004c8c !important;
+  transform: translateY(3px);
+}
+
+#sign-in-page #sign-in-btn::before {
+  content: "";
+  background: rgba(255, 255, 255, 0.8);
+  width: 60px;
+  height: 1.5em;
+  position: absolute;
+  filter: blur(30px);
+  transform: translateX(-10em) skewX(15deg);
+  transition: 0.5s linear;
+}
+
+#sign-in-page #sign-in-btn:hover::before {
+  transform: translateX(20em) skewX(15deg);
 }
 
 .snackbar {
@@ -240,9 +309,9 @@ button {
   text-align: center;
   padding: 10px;
   position: fixed;
-  left: 30px;
-  right: 30px;
-  bottom: 10px;
+  left: 50px;
+  right: 50px;
+  bottom: 30px;
   border-radius: 5px;
   z-index: 3000;
   animation: fade-in--bottom 0.5s ease;
@@ -316,21 +385,46 @@ button {
   }
 }
 
+@keyframes shrink {
+  0% {
+    width: 100vw;
+  }
+
+  100% {
+    width: 80vw;
+  }
+}
+
+@keyframes expand {
+  0% {
+    width: 80vw;
+  }
+
+  100% {
+    width: 100vw;
+  }
+}
+
 @font-face {
   font-family: "Raleway";
   src: url("fonts/Raleway.ttf");
 }
 
 @media (max-width: 500px) {
-  .page {
+  #page {
     background-image: url("/images/background-phone.jpg");
   }
 
-  #admin-card #admin-data-upload, #admin-card #admin-add-admin, #admin-card #admin-delete-admin {
+  .card .card-content .card-form {
     flex-direction: column;
   }
 
-  #admin-card #admin-data-upload #user-data-upload-btn, #admin-card #admin-add-admin #add-admin-btn, #admin-card #admin-delete-admin #delete-admin-btn {
+  .card .card-content .card-form>form {
+    max-width: 100%;
+  }
+
+  .card .card-content .card-form>button {
+    max-width: 100%;
     margin-top: 10px;
   }
 }

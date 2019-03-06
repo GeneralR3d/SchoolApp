@@ -3,7 +3,8 @@
 //----------------------------------------------------------------------------------------------------\\
 
 var APP = {
-  menuDelay: 0,
+  userMenuDelay: 0,
+  userMenuHidden: true,
   menuHidden: true,
 
   snackbarNumber: 0,
@@ -12,19 +13,23 @@ var APP = {
 
   header: document.querySelector('#header'),
   pageTitle: document.querySelector('#page-title'),
-  userButtonContainer: document.querySelector('#user-button-container'),
 
-  page: document.querySelector('.page'),
+  page: document.querySelector('#page'),
   signInPage: document.querySelector('#sign-in-page'),
 
-  onlineElements: document.querySelectorAll('.online'),
+  menu: document.querySelector('#menu'),
+  userMenu: document.querySelector('#user-menu'),
 
+  menuButtons: document.querySelectorAll('.menu-btn'),
+  adminButton: document.querySelector('#admin-btn'),
+  ptmBookingButton: document.querySelector('#ptm-booking-btn'),
+
+  backButton: document.querySelector('#back-btn'),
+  menuButton: document.querySelector('#menu-btn'),
   profileButton: document.querySelector('#profile-btn'),
   signInButton: document.querySelector('#sign-in-btn'),
   signOutButton: document.querySelector('#sign-out-btn'),
   deleteUserButton: document.querySelector('#delete-user-btn'),
-
-  cardButtonTemplate: document.querySelector('.card-btn-template'),
 };
 
 var ROUTES = {
@@ -40,10 +45,14 @@ var ROUTES = {
     template: homePage,
     script: 'scripts/pages/home.js',
   },
+  '/ptmBooking': {
+    template: ptmBookingPage,
+    script: 'scripts/pages/ptmBooking.js'
+  },
   '/admin': {
     template: adminPage,
     script: 'scripts/pages/admin.js'
-  }
+  },
 };
 
 const AUTH = firebase.auth();
@@ -54,20 +63,28 @@ const FIRESTORE = firebase.firestore();
 
 const FUNCTIONS = firebase.functions();
 
-var USER;
+var USER = {};
 
 //----------------------------------------------------------------------------------------------------\\
 
-APP.userButtonContainer.childNodes.forEach((element) => {
-  element.addEventListener('animationend', () => {
-    if (element.style.opacity === '1') {
-      element.hidden = true;
-    }
-  });
+APP.backButton.addEventListener('click', () => {
+  window.history.back();
+});
+
+APP.menuButton.addEventListener('click', () => {
+  APP.toggleMenu();
 });
 
 APP.profileButton.addEventListener('click', () => {
   APP.toggleUserMenu();
+});
+
+APP.userMenu.childNodes.forEach((element) => {
+  element.addEventListener('animationend', () => {
+    if (APP.userMenuHidden) {
+      element.hidden = true;
+    }
+  });
 });
 
 APP.signInButton.addEventListener('click', () => {
@@ -96,11 +113,15 @@ APP.initAuth = () => {
       USER = user;
 
       APP.toggleUserSignedIn(true);
-      APP.toggleUI();
+      APP.updateUser()
+        .then(() => {
+          APP.updateUI();
+          APP.togglePage(window.location.pathname);
+        });
     } else {
       console.log('[App, Firebase] User Signed In', false);
 
-      USER = undefined;
+      USER = {};
 
       APP.toggleUserSignedIn(false);
       APP.togglePage('');
@@ -141,6 +162,8 @@ APP.handleSignOut = () => {
   AUTH.signOut()
     .then(() => {
       console.log('[App, Firebase] User Sign Out Successful');
+
+      APP.togglePage();
     }).catch((error) => {
       console.error('[App, Firebase] User Sign Out Error', error);
     });
@@ -154,86 +177,130 @@ APP.deleteUser = () => {
   });
 }; // DONE
 
+APP.updateUser = async () => {
+  try {
+    var user = await FIRESTORE.doc(`users/${USER.email}`).get();
+
+    if (user.exists) {
+      USER.name = user.data().name;
+      USER.role = user.data().role;
+
+      switch (USER.role) {
+        case 'student':
+          await STUDENTROLE.updateUser();
+          break;
+
+        case 'teacher':
+          await TEACHERROLE.updateUser();
+          break;
+      }
+    } else {
+      USER.role = 'guest';
+    }
+
+    var idTokenResult = await USER.getIdTokenResult();
+    USER.admin = idTokenResult.claims.admin;
+  } catch (error) {
+    console.error('[App, Firebase]', error);
+  }
+}; // DONE
+
+APP.updateUI = () => {
+  if (USER.admin) {
+    APP.profileButton.style.border = '2px solid red';
+    APP.adminButton.hidden = false;
+  }
+  switch (USER.role) {
+    case 'student':
+      APP.ptmBookingButton.hidden = false;
+      break;
+    default:
+
+  }
+}; // DONE
+
 APP.toggleUserSignedIn = (userSignedIn) => {
   if (userSignedIn) {
-    APP.header.style.boxShadow = '0 4px 5px 0 rgba(0, 0, 0, 0.14), 0 2px 9px 1px rgba(0, 0, 0, 0.12), 0 4px 2px -2px rgba(0, 0, 0, 0.2)';
+    APP.header.style.boxShadow = '0px 0px 10px 0px rgba(0,0,0,0.75)';
     APP.signInPage.style.transform = 'translateY(-100vh)';
     APP.profileButton.style.backgroundImage = `url('${USER.photoURL}')`;
     APP.signOutButton.disabled = false;
     APP.deleteUserButton.disabled = false;
+    APP.menuButton.hidden = false;
   } else {
+    APP.pageTitle.innerHTML = '';
     APP.header.style.boxShadow = 'none';
     APP.signInPage.style.transform = 'translateY(0)';
     APP.profileButton.style.backgroundImage = 'url("/images/icons/icon-144.png")';
     APP.signOutButton.disabled = true;
     APP.deleteUserButton.disabled = true;
-    if (!APP.menuHidden) {
+    if (!APP.userMenuHidden) {
       APP.profileButton.click();
     }
+    if (!APP.menuHidden) {
+      APP.menuButton.click();
+    }
     APP.profileButton.style.border = 'none';
+    APP.backButton.hidden = true;
+    APP.menuButton.hidden = true;
+    APP.adminButton.hidden = true;
   }
 }; // DONE
 
-APP.toggleUI = async () => {
-  var idTokenResult = await USER.getIdTokenResult(true);
-  var role = idTokenResult.claims.role;
-  var admin = idTokenResult.claims.admin;
-
-  if (!role && !admin) {
-    APP.togglePage('/');
+APP.toggleMenu = () => {
+  if (APP.menuHidden == true) {
+    APP.page.style.animation = 'shrink 0.3s ease forwards';
+    APP.menuHidden = false;
   } else {
-    if (admin) {
-      APP.profileButton.style.border = '2px solid red';
-    }
-    APP.togglePage(window.location.pathname);
+    APP.page.style.animation = 'expand 0.3s ease forwards';
+    APP.menuHidden = true;
+  }
+} // DONE
+
+APP.toggleUserMenu = () => {
+  if (APP.userMenuHidden) {
+    APP.profileButton.style.animation = 'spin--right 0.3s ease';
+    APP.userMenu.childNodes.forEach((element) => {
+      if (element.nodeType === 1) {
+        element.hidden = false;
+        element.style.animation = 'fade-in--right 0.3s ease forwards';
+        element.style.animationDelay = `${APP.userMenuDelay}s`;
+        element.style.opacity = '0';
+        APP.userMenuDelay += 0.1;
+      }
+    });
+    APP.userMenuDelay -= 0.1;
+    APP.userMenuHidden = false;
+  } else {
+    APP.profileButton.style.animation = 'spin--left 0.3s ease';
+    APP.userMenu.childNodes.forEach((element) => {
+      if (element.nodeType === 1) {
+        element.style.animation = 'fade-out--right 0.3s ease forwards';
+        element.style.animationDelay = `${APP.userMenuDelay}s`;
+        element.style.opacity = '1';
+        APP.userMenuDelay -= 0.1;
+      }
+    });
+    APP.userMenuDelay += 0.1;
+    APP.userMenuHidden = true;
   }
 }; // DONE
 
 APP.togglePage = (path = '') => {
+  window.history.pushState({}, path, window.location.origin + path);
+
+  if (path === '/' || path === '/index.html' || path === '') {
+    APP.backButton.hidden = true;
+  } else {
+    APP.backButton.hidden = false;
+  }
   APP.page.innerHTML = ROUTES[path].template;
-  // APP.pageScript.src = ROUTES[path].script;
   document.querySelector('.script').remove();
   var script = document.createElement('script');
   script.src = ROUTES[path].script;
   script.className = 'script';
   script.id = ROUTES[path].script;
   document.head.appendChild(script);
-}; // DONE
-
-APP.toggleUserMenu = () => {
-  if (APP.menuHidden) {
-    APP.profileButton.style.animation = 'spin--right 0.3s ease';
-
-    APP.userButtonContainer.childNodes.forEach((element) => {
-      if (element.nodeType === 1) {
-        element.hidden = false;
-
-        element.style.animation = 'fade-in--right 0.3s ease forwards';
-        element.style.animationDelay = `${APP.menuDelay}s`;
-        element.style.opacity = '0';
-
-        APP.menuDelay += 0.1;
-      }
-    });
-    APP.menuDelay -= 0.1;
-
-    APP.menuHidden = false;
-  } else {
-    APP.profileButton.style.animation = 'spin--left 0.3s ease';
-
-    APP.userButtonContainer.childNodes.forEach((element) => {
-      if (element.nodeType === 1) {
-        element.style.animation = 'fade-out--right 0.3s ease forwards';
-        element.style.animationDelay = APP.menuDelay + 's';
-        element.style.opacity = '1';
-
-        APP.menuDelay -= 0.1;
-      }
-    });
-    APP.menuDelay += 0.1;
-
-    APP.menuHidden = true;
-  }
 }; // DONE
 
 APP.toggleSnackbar = (message) => {
@@ -274,11 +341,6 @@ APP.toggleOnline = (onlineState) => {
     APP.toggleSnackbar(`You've gone offline. :(`);
   }
 }; // DONE
-
-APP.onNavItemClick = (path) => {
-  window.history.pushState({}, path, window.location.origin + path);
-  APP.togglePage(path);
-} // TODO: CHANGE NAME
 
 //----------------------------------------------------------------------------------------------------\\
 
